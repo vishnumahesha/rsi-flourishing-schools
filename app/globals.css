@@ -1,0 +1,220 @@
+@import "tailwindcss";
+
+/* =========================================================================
+   RSI Flourishing — Design Tokens
+   calm academic prestige + modern SaaS clarity + human community warmth
+   ========================================================================= */
+:root {
+  /* Brand palette */
+  --crimson: #9e1b32;
+  --crimson-strong: #851428;
+  --crimson-soft: #f7e9eb;
+  --navy: #16233f;
+  --navy-soft: #243456;
+  --navy-ink: #0d1730;
+  --ivory: #faf6ec;
+  --ivory-deep: #f2ebd9;
+  --surface: #fffdf7;
+  --gold: #c0993f;
+  --gold-soft: #e7d6a6;
+  --slate: #51607a;
+  --mist: #a7bed0;
+  --sage: #8fa889;
+
+  /* Semantic */
+  --background: var(--ivory);
+  --foreground: #182039;
+  --muted: #69728a;
+  --card: var(--surface);
+  --line: rgba(22, 35, 63, 0.10);
+  --line-strong: rgba(22, 35, 63, 0.16);
+  --ring: rgba(158, 27, 50, 0.38);
+
+  --radius: 0.85rem;
+  --shadow-soft: 0 1px 2px rgba(13, 23, 48, 0.04), 0 8px 22px -14px rgba(13, 23, 48, 0.16);
+  --shadow-card: 0 1px 3px rgba(13, 23, 48, 0.05), 0 22px 44px -28px rgba(13, 23, 48, 0.26);
+  --shadow-float: 0 36px 70px -34px rgba(13, 23, 48, 0.36), 0 12px 26px -18px rgba(13, 23, 48, 0.20);
+}
+
+@theme inline {
+  --color-crimson: var(--crimson);
+  --color-crimson-strong: var(--crimson-strong);
+  --color-crimson-soft: var(--crimson-soft);
+  --color-navy: var(--navy);
+  --color-navy-soft: var(--navy-soft);
+  --color-navy-ink: var(--navy-ink);
+  --color-ivory: var(--ivory);
+  --color-ivory-deep: var(--ivory-deep);
+  --color-surface: var(--surface);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-slate: var(--slate);
+  --color-mist: var(--mist);
+  --color-sage: var(--sage);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-card: var(--card);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, "Times New Roman", serif;
+
+  --radius-md: calc(var(--radius) - 0.25rem);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 0.4rem);
+  --radius-2xl: calc(var(--radius) + 0.9rem);
+  --radius-3xl: calc(var(--radius) + 1.6rem);
+}
+
+/* ============================ Base ============================ */
+* {
+  border-color: var(--line);
+}
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+::selection {
+  background: rgba(158, 27, 50, 0.16);
+  color: var(--navy-ink);
+}
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 460;
+  letter-spacing: -0.021em;
+  color: var(--navy);
+  line-height: 1.08;
+}
+:focus-visible {
+  outline: 2px solid var(--crimson);
+  outline-offset: 2px;
+  border-radius: 5px;
+}
+
+/* ============================ Utilities ============================ */
+.font-display { font-family: var(--font-display); }
+.text-balance { text-wrap: balance; }
+.text-pretty { text-wrap: pretty; }
+
+.shadow-soft { box-shadow: var(--shadow-soft); }
+.shadow-card { box-shadow: var(--shadow-card); }
+.shadow-float { box-shadow: var(--shadow-float); }
+
+.glass {
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  backdrop-filter: saturate(150%) blur(14px);
+  -webkit-backdrop-filter: saturate(150%) blur(14px);
+}
+.glass-dark {
+  background: color-mix(in srgb, var(--navy-ink) 60%, transparent);
+  backdrop-filter: saturate(160%) blur(16px);
+  -webkit-backdrop-filter: saturate(160%) blur(16px);
+}
+
+/* warm radial wash for hero / section atmosphere */
+.bg-flourish {
+  background:
+    radial-gradient(60% 75% at 78% 8%, rgba(192, 153, 63, 0.12), transparent 60%),
+    radial-gradient(55% 60% at 6% 4%, rgba(158, 27, 50, 0.08), transparent 55%),
+    radial-gradient(80% 80% at 50% 110%, rgba(143, 168, 137, 0.10), transparent 60%),
+    var(--ivory);
+}
+.bg-paper {
+  background:
+    linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--ivory) 70%, var(--surface)));
+}
+.bg-navy-deep {
+  background:
+    radial-gradient(70% 90% at 80% 0%, rgba(192, 153, 63, 0.14), transparent 55%),
+    radial-gradient(60% 70% at 10% 100%, rgba(158, 27, 50, 0.20), transparent 55%),
+    linear-gradient(160deg, var(--navy-ink), var(--navy));
+}
+
+.text-gradient-gold {
+  background: linear-gradient(100deg, var(--gold), color-mix(in srgb, var(--gold) 50%, var(--crimson)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hairline { border: 1px solid var(--line); }
+.hairline-strong { border: 1px solid var(--line-strong); }
+
+.gold-rule {
+  height: 1px;
+  width: 3rem;
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
+
+/* subtle paper grain overlay */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================ Motion ============================ */
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(-0.3deg); }
+}
+@keyframes float-softer {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+.animate-float { animation: float-soft 9s ease-in-out infinite; }
+.animate-float-slow { animation: float-softer 7s ease-in-out infinite; }
+.animate-fade-up { animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* skeleton shimmer */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--navy) 7%, var(--ivory));
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  animation: shimmer 1.6s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* nice default for prose-ish blocks */
+.prose-rsi { color: var(--foreground); line-height: 1.7; }
+.prose-rsi p { margin-bottom: 1rem; color: color-mix(in srgb, var(--foreground) 90%, var(--muted)); }
+.prose-rsi h2 { margin: 2rem 0 0.75rem; font-size: 1.6rem; }
+.prose-rsi h3 { margin: 1.5rem 0 0.5rem; font-size: 1.25rem; }
+.prose-rsi a { color: var(--crimson); text-underline-offset: 3px; text-decoration: underline; }
+.prose-rsi ul { margin: 0.5rem 0 1rem; padding-left: 1.1rem; list-style: disc; }
+.prose-rsi li { margin-bottom: 0.4rem; }

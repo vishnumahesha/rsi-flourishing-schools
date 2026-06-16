@@ -88,12 +88,14 @@ body {
   background: rgba(158, 27, 50, 0.16);
   color: var(--navy-ink);
 }
-h1, h2, h3, h4 {
-  font-family: var(--font-display);
-  font-weight: 460;
-  letter-spacing: -0.021em;
-  color: var(--navy);
-  line-height: 1.08;
+@layer base {
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 460;
+    letter-spacing: -0.021em;
+    color: var(--navy);
+    line-height: 1.08;
+  }
 }
 :focus-visible {
   outline: 2px solid var(--crimson);

@@ -38,8 +38,8 @@ export function SectionHeader({
       )}
       <h2
         className={cn(
-          "text-balance text-3xl sm:text-4xl",
-          light ? "text-white" : "text-navy",
+          "text-balance text-3xl font-medium tracking-tight sm:text-[2.6rem] sm:leading-[1.06]",
+          light ? "text-ivory" : "text-navy",
         )}
       >
         {title}
@@ -48,7 +48,7 @@ export function SectionHeader({
         <p
           className={cn(
             "mt-4 text-pretty text-base leading-relaxed sm:text-lg",
-            light ? "text-white/70" : "text-muted",
+            light ? "text-mist" : "text-muted",
           )}
         >
           {description}

@@ -47,8 +47,8 @@ export function AudienceCard({
   cta: { label: string; href: string };
 }) {
   return (
-    <Card className="group flex h-full flex-col p-6 transition-all duration-300 hover:-translate-y-1 hover:border-navy/20 hover:shadow-card">
-      <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-navy text-white">
+    <Card className="group flex h-full flex-col p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-navy/25 hover:shadow-card">
+      <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-navy text-white transition-colors duration-300 group-hover:bg-navy-soft">
         <Icon className="h-5 w-5" />
       </div>
       <h3 className="font-display text-xl text-navy">{title}</h3>
@@ -115,7 +115,7 @@ export function ResearchPillarCard({
 export function ResourceCard({ resource }: { resource: ResourceItem }) {
   return (
     <Link href={`/resources/${resource.slug}`} className="group block h-full">
-      <Card className="flex h-full flex-col p-5 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-card">
+      <Card className="flex h-full flex-col p-6 transition-all duration-300 group-hover:-translate-y-1.5 group-hover:border-crimson/25 group-hover:shadow-card">
         <div className="mb-3 flex flex-wrap items-center gap-1.5">
           <Badge variant="gold">{evidenceLabels[resource.evidenceStrength]}</Badge>
           <Badge variant="muted">{difficultyLabels[resource.implementationDifficulty]}</Badge>

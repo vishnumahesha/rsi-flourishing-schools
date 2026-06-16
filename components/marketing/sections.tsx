@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Brain, Users, FileSearch, ShieldCheck, ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
@@ -53,6 +54,19 @@ const aiPoints = [
 export function AIHumanSection() {
   return (
     <section className="relative overflow-hidden bg-navy-deep py-20 sm:py-28">
+      <div
+        className="pointer-events-none absolute inset-0 flex items-center justify-center"
+        aria-hidden
+      >
+        <Image
+          src="/images/accent-burst.png"
+          alt=""
+          width={2048}
+          height={2048}
+          sizes="120vw"
+          className="h-auto w-[120%] max-w-none opacity-[0.12] mix-blend-screen [mask-image:radial-gradient(circle,black_28%,transparent_68%)]"
+        />
+      </div>
       <Container className="relative">
         <SectionHeader
           tone="light"
@@ -66,18 +80,18 @@ export function AIHumanSection() {
             const Icon = p.icon;
             return (
               <Reveal key={p.title} delay={i * 0.06}>
-                <div className="h-full rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm transition-colors hover:bg-white/[0.07]">
-                  <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gold/15 text-gold-soft ring-1 ring-gold/20">
+                <div className="h-full rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm transition-colors duration-300 hover:border-gold/30 hover:bg-white/[0.08]">
+                  <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gold/20 text-gold-soft ring-1 ring-gold/30">
                     <Icon className="h-5 w-5" />
                   </div>
-                  <h3 className="font-display text-lg text-white">{p.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-white/65">{p.body}</p>
+                  <h3 className="font-display text-lg text-ivory">{p.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-mist">{p.body}</p>
                 </div>
               </Reveal>
             );
           })}
         </div>
-        <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-white/55">
+        <p className="mx-auto mt-10 max-w-2xl text-center text-sm leading-relaxed text-mist/90">
           AI does not diagnose students, make mental-health claims, or require personally
           identifiable student data. Uploaded school reports remain private and protected.
         </p>

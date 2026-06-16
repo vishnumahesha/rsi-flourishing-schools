@@ -60,7 +60,7 @@ export default function HomePage() {
             title="From report to school-wide practice, across one academic year"
             description="A clear path that pairs AI-supported analysis with human-led professional development and structured reflection."
           />
-          <div className="mt-16">
+          <div className="mt-12">
             <ProcessTimeline steps={processSteps} />
           </div>
         </Container>

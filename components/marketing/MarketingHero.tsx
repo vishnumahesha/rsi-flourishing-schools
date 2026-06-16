@@ -1,9 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Play } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { DashboardPreview } from "./DashboardPreview";
 
 export function MarketingHero() {
   return (
@@ -47,8 +47,16 @@ export function MarketingHero() {
           </Link>
         </div>
 
-        <div className="lg:pl-4">
-          <DashboardPreview />
+        <div className="relative lg:pl-4">
+          <Image
+            src="/images/flourishing-hero.png"
+            alt="Illustration of a bare tree growing from rippling water inside concentric crimson, navy, and gold rings, representing student flourishing"
+            width={2688}
+            height={1536}
+            priority
+            sizes="(min-width: 1024px) 48vw, 100vw"
+            className="h-auto w-full mix-blend-multiply"
+          />
         </div>
       </Container>
     </section>

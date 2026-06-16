@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Check, type LucideIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -112,10 +113,36 @@ export function ResearchPillarCard({
   );
 }
 
+/**
+ * Maps a resource's primary flourishing domain to its topic illustration.
+ * Domains not listed (e.g. cognitive_virtues, staff_capacity, sel, school_culture,
+ * epistemic_virtues) render no header band — graceful fallback, no invented art.
+ */
+const DOMAIN_ART: Record<string, string> = {
+  belonging: "/images/topic-belonging.png",
+  community_wellbeing: "/images/topic-belonging.png",
+  purpose: "/images/topic-purpose.png",
+  student_wellbeing: "/images/topic-wellbeing.png",
+  character_skills: "/images/topic-character.png",
+};
+
 export function ResourceCard({ resource }: { resource: ResourceItem }) {
+  const art = DOMAIN_ART[resource.domains[0]];
   return (
     <Link href={`/resources/${resource.slug}`} className="group block h-full">
-      <Card className="flex h-full flex-col p-6 transition-all duration-300 group-hover:-translate-y-1.5 group-hover:border-crimson/25 group-hover:shadow-card">
+      <Card className="flex h-full flex-col overflow-hidden transition-all duration-300 group-hover:-translate-y-1.5 group-hover:border-crimson/25 group-hover:shadow-card">
+        {art && (
+          <div className="relative aspect-[3/2] w-full bg-paper">
+            <Image
+              src={art}
+              alt=""
+              fill
+              sizes="(min-width: 1024px) 360px, (min-width: 640px) 45vw, 90vw"
+              className="object-cover"
+            />
+          </div>
+        )}
+        <div className="flex flex-1 flex-col p-6">
         <div className="mb-3 flex flex-wrap items-center gap-1.5">
           <Badge variant="gold">{evidenceLabels[resource.evidenceStrength]}</Badge>
           <Badge variant="muted">{difficultyLabels[resource.implementationDifficulty]}</Badge>
@@ -133,6 +160,7 @@ export function ResourceCard({ resource }: { resource: ResourceItem }) {
             </Badge>
           ))}
           <Badge variant="sage">{resource.timeRequired}</Badge>
+        </div>
         </div>
       </Card>
     </Link>

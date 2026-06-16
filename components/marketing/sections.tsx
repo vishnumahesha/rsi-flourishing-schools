@@ -59,12 +59,12 @@ export function AIHumanSection() {
         aria-hidden
       >
         <Image
-          src="/images/accent-burst.png"
+          src="/images/section-accent.png"
           alt=""
-          width={2048}
-          height={2048}
+          width={1200}
+          height={1200}
           sizes="120vw"
-          className="h-auto w-[120%] max-w-none opacity-[0.12] mix-blend-screen [mask-image:radial-gradient(circle,black_28%,transparent_68%)]"
+          className="h-auto w-[120%] max-w-none -translate-y-[8%] opacity-[0.12] mix-blend-screen [mask-image:radial-gradient(circle,black_28%,transparent_68%)]"
         />
       </div>
       <Container className="relative">

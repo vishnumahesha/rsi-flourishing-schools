@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, IBM_Plex_Mono } from "next/font/google";
+import { AuthErrorBanner } from "@/components/auth/AuthErrorBanner";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -63,7 +64,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${fraunces.variable} ${inter.variable} ${plexMono.variable}`}>
-      <body className="min-h-screen antialiased">{children}</body>
+      <body className="min-h-screen antialiased">
+        <AuthErrorBanner />
+        {children}
+      </body>
     </html>
   );
 }

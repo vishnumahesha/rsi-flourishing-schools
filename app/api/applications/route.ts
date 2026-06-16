@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { applicationSchema } from "@/lib/validation/application";
-import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
@@ -51,8 +51,7 @@ export async function POST(req: Request) {
     });
   }
 
-  const service = createServiceClient() ?? supabase;
-  const { data, error } = await service
+  const { data, error } = await supabase
     .from("applications")
     .insert({
       submitted_by: user.id,

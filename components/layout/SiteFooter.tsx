@@ -12,7 +12,7 @@ export function SiteFooter() {
         <div className="grid gap-12 lg:grid-cols-[1.4fr_2fr]">
           <div>
             <Logo tone="light" />
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/60">
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/75">
               A research-backed professional development platform helping schools turn flourishing
               data into evidence-based practice — built with Research Schools International.
             </p>
@@ -46,7 +46,7 @@ export function SiteFooter() {
                     <li key={item.href}>
                       <Link
                         href={item.href}
-                        className="text-sm text-white/60 transition-colors hover:text-white"
+                        className="text-sm text-white/75 transition-colors hover:text-white"
                       >
                         {item.label}
                       </Link>
@@ -58,7 +58,7 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-6 text-xs text-white/45 sm:flex-row sm:items-center">
+        <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-6 text-xs text-white/60 sm:flex-row sm:items-center">
           <p>© {new Date().getFullYear()} Research Schools International. Demo platform.</p>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <Link href="/privacy" className="transition-colors hover:text-white/80">

@@ -47,7 +47,7 @@ export function Logo({
   href?: string;
 }) {
   const textColor = tone === "light" ? "text-white" : "text-navy";
-  const subColor = tone === "light" ? "text-white/60" : "text-muted";
+  const subColor = tone === "light" ? "text-white/75" : "text-muted";
   const markColor = tone === "light" ? "text-white" : "text-navy";
 
   return (

@@ -8,12 +8,11 @@ export default async function TeamBoardPage() {
     <>
       <PageHeading
         title="Action board"
-        description="Coordinate your team's flourishing tasks. Drag cards between columns to update status."
+        description="Coordinate your team's flourishing tasks. Move cards between columns or use the status selector on each card."
       />
       {isDemo && (
         <DemoNotice>
-          Example tasks. Changes are kept in this browser session; production syncs
-          across your team in real time.
+          Showing example tasks. Connect your school account to persist changes for your whole team.
         </DemoNotice>
       )}
       <ActionBoard initialTasks={tasks} isDemo={isDemo} />

@@ -55,7 +55,7 @@ export function ChipMultiSelect({
             type="button"
             onClick={() => toggle(o.value)}
             className={cn(
-              "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
+              "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-crimson focus-visible:ring-offset-2",
               active
                 ? "border-crimson bg-crimson-soft text-crimson"
                 : "border-line-strong text-slate hover:border-navy/30 hover:bg-navy/5",
@@ -93,7 +93,7 @@ export function RadioRow({
             aria-checked={active}
             onClick={() => onChange(o.value)}
             className={cn(
-              "rounded-xl border px-4 py-2.5 text-sm font-medium transition-colors",
+              "rounded-xl border px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-crimson focus-visible:ring-offset-2",
               active
                 ? "border-crimson bg-crimson-soft text-crimson"
                 : "border-line-strong text-slate hover:border-navy/30 hover:bg-navy/5",

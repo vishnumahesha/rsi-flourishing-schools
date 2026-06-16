@@ -129,7 +129,7 @@ export function CoachChat() {
           placeholder="Type your question…"
           className="min-h-[44px] resize-none"
         />
-        <Button size="icon" onClick={() => send(input)} disabled={loading || !input.trim()}>
+        <Button size="icon" aria-label="Send message" onClick={() => send(input)} disabled={loading || !input.trim()}>
           <Send className="h-4 w-4" />
         </Button>
       </div>

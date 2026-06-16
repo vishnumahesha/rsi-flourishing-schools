@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { NotebookPen, Plus, Check } from "lucide-react";
+import { saveReflection } from "@/app/(dashboard)/dashboard/teacher/reflections/actions";
 
 const PROMPTS = [
   "What did you notice in your students this week?",
@@ -25,23 +27,49 @@ interface Props {
 }
 
 export function ReflectionEditor({ initialEntries, isDemo }: Props) {
-  const [entries, setEntries] = useState<Entry[]>(initialEntries);
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  // Demo-mode local state
+  const [demoEntries, setDemoEntries] = useState<Entry[]>(initialEntries);
+
   const [prompt, setPrompt] = useState(PROMPTS[0]);
   const [body, setBody] = useState("");
   const [justSaved, setJustSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  function save() {
+  const isSaving = isPending;
+  const displayEntries = isDemo ? demoEntries : initialEntries;
+
+  function handleSave() {
     if (!body.trim()) return;
-    const entry: Entry = {
-      id: `local-${Date.now()}`,
-      date: new Date().toISOString().slice(0, 10),
-      prompt,
-      body: body.trim(),
-    };
-    setEntries([entry, ...entries]);
-    setBody("");
-    setJustSaved(true);
-    setTimeout(() => setJustSaved(false), 2000);
+    setSaveError(null);
+
+    if (isDemo) {
+      const entry: Entry = {
+        id: `local-${Date.now()}`,
+        date: new Date().toISOString().slice(0, 10),
+        prompt,
+        body: body.trim(),
+      };
+      setDemoEntries((prev) => [entry, ...prev]);
+      setBody("");
+      setJustSaved(true);
+      setTimeout(() => setJustSaved(false), 2000);
+      return;
+    }
+
+    startTransition(async () => {
+      const result = await saveReflection({ prompt, body });
+      if (result.ok) {
+        setBody("");
+        setJustSaved(true);
+        router.refresh();
+        setTimeout(() => setJustSaved(false), 2000);
+      } else {
+        setSaveError(result.error);
+      }
+    });
   }
 
   return (
@@ -68,26 +96,53 @@ export function ReflectionEditor({ initialEntries, isDemo }: Props) {
             rows={6}
             placeholder="Write a few honest sentences…"
           />
-          <Button className="mt-4 w-full" onClick={save} disabled={!body.trim()}>
-            {justSaved ? <Check className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
-            {justSaved ? "Saved (this session)" : "Save reflection"}
+          {saveError && (
+            <p role="alert" className="mt-2 text-xs text-red-600">
+              {saveError}
+            </p>
+          )}
+          <Button
+            className="mt-4 w-full"
+            onClick={handleSave}
+            disabled={!body.trim() || isSaving}
+          >
+            {justSaved ? (
+              <Check className="mr-2 h-4 w-4" />
+            ) : (
+              <Plus className="mr-2 h-4 w-4" />
+            )}
+            {isSaving ? "Saving…" : justSaved ? "Saved" : "Save reflection"}
           </Button>
           <p className="mt-2 text-center text-xs text-slate">
             {isDemo
-              ? "Demo only — entries are kept in this browser session."
-              : "New entries are kept in this browser session for now."}
+              ? "Demo mode — entries are kept in this browser session only."
+              : "Reflections are saved privately to your account."}
           </p>
         </div>
       </div>
 
       <div className="space-y-3 lg:col-span-3">
-        {entries.map((e) => (
-          <article key={e.id} className="rounded-2xl border border-line bg-surface p-5 shadow-soft">
-            <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate">{e.date}</div>
-            <div className="mb-2 text-sm font-medium text-crimson">{e.prompt}</div>
-            <p className="text-sm leading-relaxed text-navy">{e.body}</p>
-          </article>
-        ))}
+        {displayEntries.length === 0 && !isDemo ? (
+          <div className="rounded-2xl border border-line bg-surface p-8 text-center shadow-soft">
+            <p className="text-sm text-slate">
+              No reflections yet. After your first session, record what you
+              tried, what you noticed, and what to adapt next.
+            </p>
+          </div>
+        ) : (
+          displayEntries.map((e) => (
+            <article
+              key={e.id}
+              className="rounded-2xl border border-line bg-surface p-5 shadow-soft"
+            >
+              <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate">
+                {e.date}
+              </div>
+              <div className="mb-2 text-sm font-medium text-crimson">{e.prompt}</div>
+              <p className="text-sm leading-relaxed text-navy">{e.body}</p>
+            </article>
+          ))
+        )}
       </div>
     </div>
   );

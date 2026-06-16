@@ -39,7 +39,7 @@ export default function AboutPage() {
         description="Research Schools International (RSI) helps schools that participated in the Human Flourishing Program's Flourishing Schools Project deepen evidence-based practices that support students' character skills and flourishing."
       />
 
-      <section className="py-18 py-20">
+      <section className="py-20">
         <Container size="narrow">
           <div className="prose-rsi">
             <p>
@@ -73,7 +73,10 @@ export default function AboutPage() {
           />
           <div className="mt-12 grid gap-5 sm:grid-cols-2">
             {principles.map((p) => (
-              <Card key={p.title} className="p-6">
+              <Card
+                key={p.title}
+                className="p-6 transition-all duration-300 hover:-translate-y-1 hover:border-navy/15 hover:shadow-card"
+              >
                 <h3 className="font-display text-lg text-navy">{p.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted">{p.body}</p>
               </Card>

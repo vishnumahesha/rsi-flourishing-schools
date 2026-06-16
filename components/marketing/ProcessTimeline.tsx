@@ -56,7 +56,7 @@ export function ProcessTimeline({ steps }: { steps: Step[] }) {
                 <Icon className="h-5 w-5 text-crimson" />
               </div>
               <div className={right ? "pt-0.5" : "pt-0.5 md:flex md:flex-col md:items-end"}>
-                <div className="mb-0.5 text-xs font-semibold uppercase tracking-[0.16em] text-gold">
+                <div className="mb-0.5 font-mono text-xs font-medium uppercase tracking-[0.16em] text-gold">
                   Step {s.step}
                 </div>
                 <h3 className="font-display text-lg text-navy">{s.title}</h3>

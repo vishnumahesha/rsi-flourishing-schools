@@ -6,6 +6,7 @@ export function SectionHeader({
   description,
   align = "left",
   tone = "default",
+  size = "default",
   className,
 }: {
   eyebrow?: string;
@@ -13,13 +14,15 @@ export function SectionHeader({
   description?: React.ReactNode;
   align?: "left" | "center";
   tone?: "default" | "light";
+  size?: "default" | "display";
   className?: string;
 }) {
   const light = tone === "light";
+  const display = size === "display";
   return (
     <div
       className={cn(
-        "max-w-2xl",
+        display ? "max-w-3xl" : "max-w-2xl",
         align === "center" && "mx-auto text-center",
         className,
       )}
@@ -27,7 +30,7 @@ export function SectionHeader({
       {eyebrow && (
         <div
           className={cn(
-            "mb-3 flex items-center gap-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em]",
+            "mb-3 flex items-center gap-2.5 font-mono text-[0.7rem] font-medium uppercase tracking-[0.16em]",
             align === "center" && "justify-center",
             light ? "text-gold-soft" : "text-crimson",
           )}
@@ -38,7 +41,10 @@ export function SectionHeader({
       )}
       <h2
         className={cn(
-          "text-balance text-3xl font-medium tracking-tight sm:text-[2.6rem] sm:leading-[1.06]",
+          "text-balance font-medium tracking-tight leading-[1.06]",
+          display
+            ? "text-[clamp(3rem,6vw,4.5rem)]"
+            : "text-[clamp(1.875rem,3.2vw,2.5rem)]",
           light ? "text-ivory" : "text-navy",
         )}
       >

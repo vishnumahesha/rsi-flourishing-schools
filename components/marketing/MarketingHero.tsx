@@ -16,7 +16,7 @@ export function MarketingHero() {
             <span className="h-1.5 w-1.5 rounded-full bg-crimson" />
             RSI Flourishing Schools · Professional Development
           </Badge>
-          <h1 className="text-balance font-display text-4xl leading-[1.05] text-navy sm:text-5xl md:text-[3.4rem]">
+          <h1 className="text-balance font-display text-[clamp(3.25rem,7vw,5.5rem)] leading-[1.02] tracking-tight text-navy">
             Turn flourishing research into{" "}
             <span className="text-gradient-gold">school-wide practice.</span>
           </h1>

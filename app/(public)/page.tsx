@@ -37,6 +37,7 @@ export default function HomePage() {
       <section className="py-20 sm:py-28">
         <Container>
           <SectionHeader
+            size="display"
             eyebrow="The challenge"
             title="Schools care deeply about flourishing — but often run on anecdote"
             description="Many schools want to support character skills, well-being, and community life, yet rely on hunches to know whether it's working. The platform helps move from survey findings to practical, evidence-based implementation."

@@ -32,6 +32,7 @@ export default function ResearchPage() {
       <section className="py-20">
         <Container>
           <SectionHeader
+            size="display"
             eyebrow="The framework"
             title="Three pillars of education for flourishing"
             description="Each pillar can be assessed at the individual level and at the school or system level, to see where there is adequate support."
@@ -41,7 +42,7 @@ export default function ResearchPage() {
               <ResearchPillarCard key={p.title} {...p} />
             ))}
           </div>
-          <p className="mt-8 max-w-2xl text-sm text-muted">
+          <p className="mt-8 max-w-2xl font-mono text-xs leading-relaxed text-muted">
             Framework reference: VanderWeele, T. J., &amp; Hinton, C. (2024). Metrics for education for
             flourishing: A framework. <em>International Journal of Wellbeing</em>, 14(1).
           </p>

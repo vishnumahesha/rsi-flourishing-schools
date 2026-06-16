@@ -69,7 +69,7 @@ export default function GetInvolvedPage() {
             {paths.map((p) => {
               const Icon = p.icon;
               return (
-                <Card key={p.title} className="group flex h-full flex-col p-6">
+                <Card key={p.title} className="group flex h-full flex-col p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-crimson/25 hover:shadow-card">
                   <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-crimson-soft text-crimson">
                     <Icon className="h-5 w-5" />
                   </div>

@@ -18,12 +18,12 @@ export function PageHero({
       <Container className="relative py-16 sm:py-20">
         <div className="max-w-3xl">
           {eyebrow && (
-            <div className="mb-3 flex items-center gap-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-crimson">
+            <div className="mb-3 flex items-center gap-2.5 font-mono text-[0.7rem] font-medium uppercase tracking-[0.16em] text-crimson">
               <span className="gold-rule" aria-hidden />
               {eyebrow}
             </div>
           )}
-          <h1 className="text-balance font-display text-4xl leading-[1.06] text-navy sm:text-5xl">
+          <h1 className="text-balance font-display text-[clamp(3.25rem,7vw,5.5rem)] leading-[1.04] tracking-tight text-navy">
             {title}
           </h1>
           {description && (

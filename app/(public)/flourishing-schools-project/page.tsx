@@ -46,7 +46,7 @@ export default function FSPPage() {
 
           <Card className="mt-10 bg-paper p-6">
             <h3 className="font-display text-lg text-navy">Selected references</h3>
-            <ul className="mt-3 space-y-2 text-sm text-muted">
+            <ul className="mt-3 space-y-2 font-mono text-xs leading-relaxed text-muted">
               <li>
                 VanderWeele, T. J., &amp; Hinton, C. (2024). Metrics for education for flourishing: A
                 framework. <em>International Journal of Wellbeing</em>, 14(1), 1–35.

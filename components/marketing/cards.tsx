@@ -40,19 +40,40 @@ export function AudienceCard({
   description,
   actions,
   cta,
+  featured = false,
 }: {
   icon: LucideIcon;
   title: string;
   description: string;
   actions: string[];
   cta: { label: string; href: string };
+  featured?: boolean;
 }) {
   return (
-    <Card className="group flex h-full flex-col p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-navy/25 hover:shadow-card">
-      <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-navy text-white transition-colors duration-300 group-hover:bg-navy-soft">
-        <Icon className="h-5 w-5" />
+    <Card
+      className={cn(
+        "group flex h-full flex-col transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card",
+        featured
+          ? "border-t-2 border-t-gold p-7 hover:border-navy/25"
+          : "p-6 hover:border-navy/25",
+      )}
+    >
+      <div
+        className={cn(
+          "mb-5 inline-flex items-center justify-center rounded-xl bg-navy text-white transition-colors duration-300 group-hover:bg-navy-soft",
+          featured ? "h-12 w-12" : "h-11 w-11",
+        )}
+      >
+        <Icon className={featured ? "h-6 w-6" : "h-5 w-5"} />
       </div>
-      <h3 className="font-display text-xl text-navy">{title}</h3>
+      <h3
+        className={cn(
+          "font-display text-navy",
+          featured ? "text-2xl" : "text-xl",
+        )}
+      >
+        {title}
+      </h3>
       <p className="mt-2 text-sm leading-relaxed text-muted">{description}</p>
       <ul className="mt-4 space-y-2">
         {actions.map((a) => (

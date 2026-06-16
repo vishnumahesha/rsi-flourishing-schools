@@ -1,89 +1,154 @@
-# RSI Flourishing Schools — Professional Development Platform
+# RSI Flourishing Schools
 
-A production Next.js 15 platform for the RSI Flourishing Schools Professional Development Program: a public marketing site plus a role-based school PD workspace (applicant → school admin → teacher → team → RSI facilitator), backed by Supabase with row-level security and AI-assisted analysis, recommendations, and reflective coaching.
+A research-backed professional development platform for schools that participated in the Flourishing Schools Project. The platform serves multiple audiences from a single codebase: public visitors exploring the project, school applicants, school administrators, teachers, school teams, and RSI facilitators managing cohorts. It is not affiliated with or endorsed by Harvard University beyond the factual context of the Flourishing Schools Project research.
 
-> **Status:** Scaffolding complete and verified. `tsc --noEmit` and `next build` both pass (49 routes). Several features intentionally ship as clearly-labeled demonstrations until live data is wired — see **[Known stubs](#known-stubs--honest-status)** below.
+**Production:** https://rsi-flourishing.vercel.app
 
 ## Stack
 
-- **Next.js 15** (App Router, React 19, TypeScript)
-- **Tailwind CSS v4** (CSS-first `@theme` token system) + custom design system
-- **Supabase** (Postgres, Auth, Storage, RLS) via `@supabase/ssr`
-- **framer-motion** for marketing motion
-- **lucide-react** icons, **Radix** primitives
-- **Anthropic Messages API** for AI features, with a deterministic mock fallback
+- **Next.js 15** (App Router, React 19, TypeScript strict)
+- **Tailwind CSS v4** (CSS-first `@theme` token system)
+- **Supabase** (Postgres + Auth + Storage + RLS) via `@supabase/ssr`
+- **Vercel** (hosting, auto-deploy from Git)
+- **Framer Motion** for marketing animations
+- **Radix UI** primitives, **Lucide React** icons, **React Hook Form** + Zod validation
+- **Fonts:** Fraunces (display), Inter (body), IBM Plex Mono (code/data)
+- **AI:** Anthropic Messages API with a deterministic mock fallback when no key is set
 
-## Quick start
+## Local setup
 
 ```bash
+git clone <repo-url>
+cd rsi-flourishing
 npm install
-cp .env.example .env.local   # fill in values (see below)
+cp .env.example .env.local   # fill in values — see Environment variables below
 npm run dev
 ```
 
-The public site and dashboards render **without** any environment variables (auth and persistence degrade gracefully to demo mode), so you can run `npm run dev` immediately.
+Open http://localhost:3000.
 
 ## Environment variables
 
-| Variable | Required | Purpose |
-| --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | for auth/data | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | for auth/data | Supabase anon/publishable key |
-| `SUPABASE_SERVICE_ROLE_KEY` | server writes | Service-role key (server-only; never exposed) |
-| `NEXT_PUBLIC_SITE_URL` | recommended | Canonical site URL (auth redirects, OG) |
-| `AI_PROVIDER_API_KEY` | optional | Anthropic API key — enables live AI; omit for mock mode |
-| `AI_MODEL` | optional | Model id (default `claude-sonnet-4-6`) |
+Copy `.env.example` to `.env.local` and fill in each value. Never commit `.env.local`.
 
-When `AI_PROVIDER_API_KEY` is absent, the analyze / recommend / coach features return deterministic, clearly-labeled demonstration output drawn only from the curated resource library. **They never fabricate research citations.**
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL (public) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon/publishable key (public) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service-role key — server-only; bypasses RLS; never expose to the browser |
+| `NEXT_PUBLIC_SITE_URL` | Canonical site URL used for auth redirects and metadata (e.g. `https://rsi-flourishing.vercel.app`) |
+| `AI_PROVIDER_API_KEY` | Anthropic API key — optional; AI features return safe mock responses when absent |
+| `AI_MODEL` | Optional override for the model used by AI routes (default: `claude-sonnet-4-6`) |
 
-## Database
+## Supabase setup
 
-SQL lives in `db/`:
+1. Create a project at https://supabase.com.
+2. Open the SQL editor and apply migrations in order:
+   - `db/migrations/0001_init.sql` — core schema: 14 tables, enums, RLS policies, helper functions, `handle_new_user` trigger, and 4 storage buckets.
+   - `db/migrations/0002_finish_platform.sql` — adds `contact_messages`, `newsletter_signups`, and `invitations`. Required for the contact form and invite system to persist data.
+3. Optionally run `db/seed/seed.sql` to load demonstration data (one organization, four demo users, resources, PD sessions, and facilitator notes). This data is fake and for development/demo purposes only.
+4. Confirm the storage buckets exist:
 
-- `db/migrations/0001_init.sql` — 14 tables, enums, RLS helper functions (`is_platform_admin`, `is_rsi_facilitator`, `is_org_member`, `is_org_admin`), the `handle_new_user` trigger, all RLS policies, and 4 storage buckets (`school-documents` private; `resource-files`, `profile-avatars`, `public-assets` public).
-- `db/seed/seed.sql` — demonstration data: one organization, four users (created via `auth.users` so the new-user trigger provisions profiles, which are then promoted to their roles), curated resources, growth areas, PD sessions, intervention plans, reflections, forum threads, and a facilitator note.
+   | Bucket | Access |
+   | --- | --- |
+   | `school-documents` | Private (signed URLs only) |
+   | `resource-files` | Public |
+   | `profile-avatars` | Public |
+   | `public-assets` | Public |
 
-Apply with the Supabase SQL editor, the Supabase MCP, or the CLI. After signup, promote your own account:
+5. Grab the Project URL, anon key, and service-role key from Project Settings → API and set them in `.env.local`.
+
+For Auth URL configuration, Google OAuth setup, and redirect URL requirements see [DEPLOYMENT.md](DEPLOYMENT.md).
+
+After signing up, promote your account to admin:
 
 ```sql
 update profiles set role = 'platform_admin' where email = 'you@example.com';
 ```
 
+## Scripts
+
+From `package.json`:
+
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Start the Next.js dev server |
+| `npm run build` | Production build |
+| `npm start` | Run the production build locally |
+| `npm run lint` | Run ESLint |
+| `npm run typecheck` | Run `tsc --noEmit` (TypeScript strict check) |
+
+## Deployment
+
+The app deploys to Vercel. Either push to the connected Git branch (auto-deploy) or run:
+
+```bash
+vercel --prod
+```
+
+Add all environment variables under Project → Settings → Environment Variables before deploying. See [DEPLOYMENT.md](DEPLOYMENT.md) for the full first-run checklist, Google OAuth wiring, and production smoke checks.
+
 ## Project structure
 
 ```
 app/
-  (public)/        Marketing site (home, about, research, impact, PD, resources, apply, legal)
-  (auth)/          Login / signup (Supabase email auth, Suspense-wrapped)
-  (dashboard)/     Role-aware workspace (applicant, admin, teacher, team, facilitator)
-  api/             AI routes (analyze-school, recommend-resources, coach) + applications
-components/        brand, marketing, dashboard, forms, resources, ai, ui (primitives)
+  (public)/          Public marketing site
+    about/           About the program
+    research/        Research background
+    impact/          Impact data
+    flourishing-schools-project/
+    professional-development/
+    resources/       Resource library (+ /[slug] detail pages)
+    apply/           School application form
+    contact/         Contact form
+    get-involved/
+    responsible-ai/
+    blog/
+    privacy/
+  (auth)/            Login and signup (Supabase email auth)
+  (dashboard)/       Role-based workspace
+    dashboard/
+      applicant/     Application status tracking
+      admin/         School admin tools
+      teacher/       Teacher PD workspace + AI coach
+      team/          School team board
+      facilitator/   RSI facilitator cohort management
+  api/
+    ai/
+      analyze-school/
+      recommend-resources/
+      coach/
+    applications/
+  auth/callback/     Supabase OAuth callback handler
+
+components/          brand, marketing, dashboard, forms, resources, ai, ui
 lib/
-  ai/              provider + analyze-school + recommend-resources + coach (mock fallback)
-  auth/            roles + dashboard path routing
-  content/         curated resources, navigation, home, research, blog, demo, dashboard-nav
-  supabase/        server / client / middleware helpers (null-safe without env)
-  validation/      Zod application schema
-db/                migrations + seed
-types/             shared types + domain constants
+  ai/                AI provider + analyze/recommend/coach with mock fallback
+  auth/              Role helpers and dashboard path routing
+  content/           Curated resources, navigation copy, demo data
+  supabase/          server / client / middleware helpers
+  validation/        Zod schemas
+db/
+  migrations/        0001_init.sql, 0002_finish_platform.sql
+  seed/              seed.sql (demo data only)
+types/               Shared TypeScript types and domain constants
 ```
 
-## Responsible AI
+## Security
 
-AI output is positioned as decision-support for a human facilitator, never as assessment, diagnosis, or clinical/legal/crisis advice. Recommendations are restricted to the curated library; any model-suggested resource slug not in that library is discarded before display. All research references in seed and curated content are `Placeholder citation` and must be replaced with verified sources before production.
+See [SECURITY.md](SECURITY.md) for the full policy. Key points:
 
-## Known stubs & honest status
+- Never commit `.env.local`. It is in `.gitignore`.
+- `SUPABASE_SERVICE_ROLE_KEY` bypasses RLS. Use it only in server-side code (`app/api/`, server components, server actions). Never import it from a client component or any `NEXT_PUBLIC_` variable.
+- RLS policies on each table are the authoritative access boundary. Do not disable RLS on any table in production.
+- If the service-role key is ever exposed, rotate it immediately in Supabase → Settings → API → JWT Secret, then update Vercel and redeploy.
+- Report security vulnerabilities to flourishingschools@fas.harvard.edu — do not file a public issue.
 
-- **Demo data everywhere in dashboards.** Dashboard pages render content from `lib/content/demo.ts`, clearly labeled. Wiring them to live Supabase queries is the next step.
-- **In-session-only persistence.** The reflection journal and the team action board keep changes in React state for the session; they do not yet write to Supabase.
-- **Placeholder citations.** No real research is cited anywhere.
-- **AI mock fallback** runs unless `AI_PROVIDER_API_KEY` is set.
-- **Application submission** validates and (when authenticated + configured) inserts into `applications`; otherwise it returns a demo-safe success.
-- **Seeded demo users** exist to populate the data model; create your own admin via signup and promote it.
+## Known limitations
 
-## Verification
-
-```bash
-npx tsc --noEmit   # type check (passes)
-npm run build      # production build (passes — 49 routes)
-```
+- **Migration 0002 required for contact and invites.** If `0002_finish_platform.sql` has not been applied, contact form submissions and team invitations will not persist to the database.
+- **Google OAuth requires explicit configuration.** Both Supabase (Authentication → Providers → Google) and Google Cloud Console (OAuth consent screen + credentials) must be set up. A missing or mismatched redirect URI causes `redirect_uri_mismatch` errors. See [DEPLOYMENT.md](DEPLOYMENT.md).
+- **AI features need `AI_PROVIDER_API_KEY`.** Without it, the analyze-school, recommend-resources, and coach endpoints return clearly labeled mock responses. This is a safe fallback, not an error.
+- **Resource library is statically curated.** The public resource library is backed by `lib/content/resources.ts`. All research citations in that file are marked as placeholders and must be replaced with verified sources before production use.
+- **Email delivery is not wired.** Contact form submissions and team invitations are stored in the database but no outbound email is sent. A transactional email service (e.g. Resend, Postmark) needs to be integrated.
+- **Placeholder citations throughout.** No real research is cited in the seed data or curated content. These must be replaced before the platform is used in a real program context.

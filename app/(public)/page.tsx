@@ -42,12 +42,29 @@ export default function HomePage() {
             title="Schools care deeply about flourishing — but often run on anecdote"
             description="Many schools want to support character skills, well-being, and community life, yet rely on hunches to know whether it's working. The platform helps move from survey findings to practical, evidence-based implementation."
           />
-          <Stagger className="mt-12 grid gap-5 md:grid-cols-3">
-            {problemCards.map((c) => (
-              <StaggerItem key={c.title}>
-                <FeatureCard icon={c.icon} title={c.title} body={c.body} />
-              </StaggerItem>
-            ))}
+          <Stagger className="mt-12 grid gap-5 lg:grid-cols-12 lg:grid-rows-2">
+            <StaggerItem className="lg:col-span-7 lg:row-span-2">
+              <FeatureCard
+                icon={problemCards[0].icon}
+                title={problemCards[0].title}
+                body={problemCards[0].body}
+                className="lg:h-full lg:p-8"
+              />
+            </StaggerItem>
+            <StaggerItem className="lg:col-span-5 lg:row-span-1">
+              <FeatureCard
+                icon={problemCards[1].icon}
+                title={problemCards[1].title}
+                body={problemCards[1].body}
+              />
+            </StaggerItem>
+            <StaggerItem className="lg:col-span-5 lg:row-span-1">
+              <FeatureCard
+                icon={problemCards[2].icon}
+                title={problemCards[2].title}
+                body={problemCards[2].body}
+              />
+            </StaggerItem>
           </Stagger>
         </Container>
       </section>
@@ -75,10 +92,13 @@ export default function HomePage() {
             title="One platform. Multiple entry points."
             description="Each role gets a focused experience — from school leaders and teachers to school teams, RSI facilitators, and the public."
           />
-          <Stagger className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {audiencePaths.map((a) => (
-              <StaggerItem key={a.title}>
-                <AudienceCard {...a} />
+          <Stagger className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-6">
+            {audiencePaths.map((a, i) => (
+              <StaggerItem
+                key={a.title}
+                className={i === 0 ? "sm:col-span-2 lg:col-span-3" : "lg:col-span-2 sm:col-span-1"}
+              >
+                <AudienceCard {...a} featured={i === 0} />
               </StaggerItem>
             ))}
           </Stagger>

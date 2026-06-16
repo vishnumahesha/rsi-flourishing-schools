@@ -7,7 +7,7 @@ import { formatDate } from "@/lib/utils";
 import { blogPosts, blogCategories } from "@/lib/content/blog";
 
 export const metadata: Metadata = {
-  title: "Blog",
+  title: "Updates",
   description: "Research updates, program news, school stories, and evidence-based practices.",
 };
 
@@ -18,9 +18,9 @@ export default function BlogPage() {
   return (
     <>
       <PageHero
-        eyebrow="Blog"
-        title="Insights on flourishing in schools"
-        description="Research updates, program news, school stories, and practical, evidence-based ideas."
+        eyebrow="Updates"
+        title="What we're writing about"
+        description="As the program launches, this space will carry research updates, program news, and evidence-based ideas for schools. The pieces below are a preview of what's coming."
       />
       <section className="py-16">
         <Container>
@@ -40,7 +40,7 @@ export default function BlogPage() {
             ))}
           </div>
 
-          {/* Featured */}
+          {/* Featured preview */}
           <Card className="mb-10 grid overflow-hidden md:grid-cols-2">
             <div className="bg-navy-deep p-8 sm:p-10">
               <Badge variant="gold" className="mb-4">
@@ -55,12 +55,13 @@ export default function BlogPage() {
             <div className="flex items-center justify-center bg-flourish p-10">
               <div className="text-center">
                 <div className="mx-auto mb-3 h-14 w-14 rounded-2xl bg-crimson-soft" />
-                <p className="text-sm text-muted">Full article coming soon</p>
+                <p className="text-sm font-medium text-navy">Forthcoming</p>
+                <p className="mt-1 text-xs text-muted">Full piece publishing as the program launches</p>
               </div>
             </div>
           </Card>
 
-          {/* Grid */}
+          {/* Preview grid */}
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {rest.map((p) => (
               <Card key={p.slug} className="flex h-full flex-col p-6">
@@ -75,8 +76,13 @@ export default function BlogPage() {
               </Card>
             ))}
           </div>
-          <p className="mt-10 text-center text-xs text-muted">
-            Posts are placeholder content for this demo platform.
+
+          <p className="mt-10 text-center text-sm text-muted">
+            Articles will be published here as the program progresses. Subscribe to program updates via the{" "}
+            <a href="/contact" className="font-medium text-crimson underline-offset-2 hover:underline">
+              contact page
+            </a>
+            .
           </p>
         </Container>
       </section>

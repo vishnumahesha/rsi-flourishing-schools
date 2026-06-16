@@ -49,7 +49,7 @@ export function ContactForm() {
         <CheckCircle2 className="h-10 w-10 text-sage" />
         <h3 className="mt-4 font-display text-xl text-navy">Message received</h3>
         <p className="mt-2 max-w-sm text-sm text-muted">
-          Thanks — your message was received. We'll be in touch.
+          Thanks — your message was received. We&apos;ll be in touch.
         </p>
       </Card>
     );

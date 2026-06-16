@@ -41,6 +41,7 @@ export const metadata: Metadata = {
     "Research Schools International",
     "evidence-based education",
   ],
+  alternates: { canonical: siteUrl },
   openGraph: {
     title: "RSI Flourishing Schools — Professional Development Platform",
     description:
@@ -48,11 +49,20 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName: "RSI Flourishing Schools",
     type: "website",
+    images: [
+      {
+        url: "/images/flourishing-hero.png",
+        width: 2688,
+        height: 1536,
+        alt: "RSI Flourishing Schools — a tree growing from concentric rings, representing student flourishing.",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "RSI Flourishing Schools",
     description: "Turn flourishing research into school-wide practice.",
+    images: ["/images/flourishing-hero.png"],
   },
   robots: { index: true, follow: true },
 };

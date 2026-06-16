@@ -1,7 +1,7 @@
 import { PageHeading, DashCard, DemoNotice } from "@/components/dashboard/primitives";
-import { Button } from "@/components/ui/button";
 import { getAdminDocuments } from "@/lib/dashboard/admin-sub";
-import { FileText, Upload, Lock } from "lucide-react";
+import { FileText, Lock } from "lucide-react";
+import { UploadForm } from "./UploadForm";
 
 export default async function DocumentsPage() {
   const data = await getAdminDocuments();
@@ -10,8 +10,8 @@ export default async function DocumentsPage() {
       <PageHeading
         title="Documents"
         description="Materials your school has shared to inform analysis and planning."
-        action={<Button variant="outline" size="sm"><Upload className="mr-2 h-4 w-4" /> Upload</Button>}
       />
+
       {data.isDemo && (
         <DemoNotice>
           File upload writes to a <strong>private</strong> storage bucket in
@@ -24,18 +24,28 @@ export default async function DocumentsPage() {
         <p>Documents are private to your school team and your RSI facilitator. Avoid uploading files containing student personal information.</p>
       </div>
 
+      <UploadForm />
+
       <DashCard>
         <ul className="divide-y divide-line">
-          {data.documents.map((d) => (
-            <li key={d.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-crimson-soft"><FileText className="h-5 w-5 text-crimson" /></span>
-              <div className="min-w-0">
-                <div className="truncate font-medium text-navy">{d.name}</div>
-                <div className="text-xs text-slate">{d.category} · {d.uploaded}</div>
-              </div>
-              <span className="ml-auto text-xs text-slate">{d.size}</span>
+          {data.documents.length === 0 ? (
+            <li className="py-8 text-center text-sm text-slate">
+              No uploaded documents yet. Upload your Flourishing Schools report and school goal materials to prepare for AI-supported analysis and RSI workshop planning.
             </li>
-          ))}
+          ) : (
+            data.documents.map((d) => (
+              <li key={d.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-crimson-soft">
+                  <FileText className="h-5 w-5 text-crimson" />
+                </span>
+                <div className="min-w-0">
+                  <div className="truncate font-medium text-navy">{d.name}</div>
+                  <div className="text-xs text-slate">{d.category} · {d.uploaded}</div>
+                </div>
+                <span className="ml-auto text-xs text-slate">{d.size}</span>
+              </li>
+            ))
+          )}
         </ul>
       </DashCard>
     </>

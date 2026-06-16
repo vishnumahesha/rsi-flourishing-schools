@@ -29,11 +29,11 @@ export default function ContactPage() {
                   to apply.
                 </p>
                 <a
-                  href="mailto:flourishingschools@example.org"
+                  href="mailto:flourishingschools@fas.harvard.edu"
                   className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-crimson hover:text-crimson-strong"
                 >
                   <Mail className="h-4 w-4" />
-                  flourishingschools@example.org
+                  flourishingschools@fas.harvard.edu
                 </a>
               </div>
               <div className="rounded-2xl border border-line bg-paper p-6">
@@ -42,16 +42,13 @@ export default function ContactPage() {
                   For all other questions about Research Schools International.
                 </p>
                 <a
-                  href="mailto:hello@example.org"
+                  href="mailto:flourishingschools@fas.harvard.edu"
                   className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-crimson hover:text-crimson-strong"
                 >
                   <Mail className="h-4 w-4" />
-                  hello@example.org
+                  flourishingschools@fas.harvard.edu
                 </a>
               </div>
-              <p className="text-xs text-muted">
-                Contact addresses are placeholders for this demo platform.
-              </p>
             </div>
           </div>
         </Container>

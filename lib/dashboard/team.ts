@@ -2,12 +2,16 @@
  * Live data loaders for team pages.
  *
  * Queries run AS THE SIGNED-IN USER (anon key + session cookies) so RLS decides
- * what each member can see. Falls back to demo data when Supabase is unconfigured,
- * the session is absent, or the query returns no rows.
+ * what each member can see.
+ *
+ * Demo data is returned ONLY when Supabase is unconfigured (!supabase) or
+ * NEXT_PUBLIC_ENABLE_DEMO_FALLBACK=true. A real signed-in user with no rows
+ * receives real empty results, never fake data.
  *
  * No values are fabricated. Missing joins → "Member" or "". Missing columns → "—".
  */
 import { createClient } from "@/lib/supabase/server";
+import { isDemoMode } from "@/lib/demo";
 import { demoThreads, demoTasks, type TaskStatus } from "@/lib/content/demo";
 
 // ---------------------------------------------------------------------------
@@ -43,14 +47,18 @@ function demoForum(): TeamForum {
   return { isDemo: true, threads: demoThreads };
 }
 
+function emptyForum(): TeamForum {
+  return { isDemo: false, threads: [] };
+}
+
 export async function getTeamForum(): Promise<TeamForum> {
   const supabase = await createClient();
-  if (!supabase) return demoForum();
+  if (!supabase || isDemoMode()) return demoForum();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return demoForum();
+  if (!user) return emptyForum();
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -60,7 +68,7 @@ export async function getTeamForum(): Promise<TeamForum> {
 
   const organizationId = (profile as { organization_id: string | null } | null)
     ?.organization_id;
-  if (!organizationId) return demoForum();
+  if (!organizationId) return emptyForum();
 
   const { data: threadData } = await supabase
     .from("forum_threads")
@@ -69,7 +77,10 @@ export async function getTeamForum(): Promise<TeamForum> {
     .order("last_activity", { ascending: false });
 
   const threads = (threadData ?? []) as ThreadRow[];
-  if (threads.length === 0) return demoForum();
+
+  if (threads.length === 0) {
+    return emptyForum();
+  }
 
   // Resolve author names and post counts in parallel.
   const authorIds = [...new Set(threads.map((t) => t.author_id).filter(Boolean))] as string[];
@@ -154,6 +165,10 @@ function demoTeamTasks(): TeamTasks {
   return { isDemo: true, tasks: demoTasks };
 }
 
+function emptyTeamTasks(): TeamTasks {
+  return { isDemo: false, tasks: [] };
+}
+
 const VALID_STATUSES = new Set<TaskStatus>(["backlog", "in_progress", "review", "done"]);
 
 function toTaskStatus(raw: string): TaskStatus {
@@ -162,12 +177,12 @@ function toTaskStatus(raw: string): TaskStatus {
 
 export async function getTeamTasks(): Promise<TeamTasks> {
   const supabase = await createClient();
-  if (!supabase) return demoTeamTasks();
+  if (!supabase || isDemoMode()) return demoTeamTasks();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return demoTeamTasks();
+  if (!user) return emptyTeamTasks();
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -177,7 +192,7 @@ export async function getTeamTasks(): Promise<TeamTasks> {
 
   const organizationId = (profile as { organization_id: string | null } | null)
     ?.organization_id;
-  if (!organizationId) return demoTeamTasks();
+  if (!organizationId) return emptyTeamTasks();
 
   const { data: planData } = await supabase
     .from("intervention_plans")
@@ -186,7 +201,10 @@ export async function getTeamTasks(): Promise<TeamTasks> {
     .order("created_at", { ascending: true });
 
   const plans = (planData ?? []) as PlanRow[];
-  if (plans.length === 0) return demoTeamTasks();
+
+  if (plans.length === 0) {
+    return emptyTeamTasks();
+  }
 
   const growthAreaIds = [...new Set(plans.map((p) => p.growth_area_id).filter(Boolean))] as string[];
   const ownerIds = [...new Set(plans.map((p) => p.owner_id).filter(Boolean))] as string[];

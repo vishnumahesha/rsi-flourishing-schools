@@ -2,13 +2,17 @@
  * Live data loaders for the teacher dashboard.
  *
  * Queries run AS THE SIGNED-IN USER (anon key + session cookies) so RLS
- * controls what each teacher sees. Falls back to demo data when Supabase
- * is unconfigured, the session is missing, or the user has no rows yet.
+ * controls what each teacher sees.
+ *
+ * Demo data is returned ONLY when Supabase is unconfigured (!supabase) or
+ * NEXT_PUBLIC_ENABLE_DEMO_FALLBACK=true. A real signed-in user with no rows
+ * yet receives real empty results, never fake data.
  *
  * No fields are fabricated: columns that don't exist in the schema are
  * omitted or shown as "—".
  */
 import { createClient } from "@/lib/supabase/server";
+import { isDemoMode } from "@/lib/demo";
 import { demoReflections, demoTasks } from "@/lib/content/demo";
 
 // ---------------------------------------------------------------------------
@@ -56,14 +60,23 @@ function demoTeacherOverview(): TeacherOverview {
   };
 }
 
+function emptyTeacherOverview(): TeacherOverview {
+  return {
+    isDemo: false,
+    reflectionCount: 0,
+    activeTaskCount: 0,
+    recentReflection: null,
+  };
+}
+
 export async function getTeacherOverview(): Promise<TeacherOverview> {
   const supabase = await createClient();
-  if (!supabase) return demoTeacherOverview();
+  if (!supabase || isDemoMode()) return demoTeacherOverview();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return demoTeacherOverview();
+  if (!user) return emptyTeacherOverview();
 
   const [reflectionRes, taskRes, recentRes] = await Promise.all([
     supabase
@@ -86,11 +99,6 @@ export async function getTeacherOverview(): Promise<TeacherOverview> {
 
   const reflectionCount = reflectionRes.count ?? 0;
   const activeTaskCount = ((taskRes.data ?? []) as TaskCountRow[]).length;
-
-  // Fall back to demo when the account has no data at all
-  if (reflectionCount === 0 && activeTaskCount === 0) {
-    return demoTeacherOverview();
-  }
 
   const recentRow = recentRes.data as ReflectionRow | null;
   const recentReflection: TeacherRecentReflection | null = recentRow
@@ -137,14 +145,18 @@ function demoTeacherReflections(): TeacherReflections {
   };
 }
 
+function emptyTeacherReflections(): TeacherReflections {
+  return { isDemo: false, entries: [] };
+}
+
 export async function getTeacherReflections(): Promise<TeacherReflections> {
   const supabase = await createClient();
-  if (!supabase) return demoTeacherReflections();
+  if (!supabase || isDemoMode()) return demoTeacherReflections();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return demoTeacherReflections();
+  if (!user) return emptyTeacherReflections();
 
   const { data } = await supabase
     .from("reflections")
@@ -153,7 +165,6 @@ export async function getTeacherReflections(): Promise<TeacherReflections> {
     .order("created_at", { ascending: false });
 
   const rows = (data ?? []) as ReflectionRow[];
-  if (rows.length === 0) return demoTeacherReflections();
 
   return {
     isDemo: false,

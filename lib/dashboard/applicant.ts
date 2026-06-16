@@ -2,13 +2,17 @@
  * Live data loader for the applicant dashboard.
  *
  * Queries AS THE SIGNED-IN USER via the anon key + session cookie, so RLS
- * restricts results to rows the submitter owns. Falls back to demoApplication
- * when Supabase is unconfigured, no session exists, or the user has no row.
+ * restricts results to rows the submitter owns.
+ *
+ * Demo data is returned ONLY when Supabase is unconfigured (!supabase) or
+ * NEXT_PUBLIC_ENABLE_DEMO_FALLBACK=true. A real signed-in user with no
+ * application row yet receives a real empty result, never fake data.
  *
  * Steps are derived strictly from real status and real timestamps — no dates
  * are fabricated. Unknown or not-yet-reached dates are returned as "".
  */
 import { createClient } from "@/lib/supabase/server";
+import { isDemoMode } from "@/lib/demo";
 import { demoApplication } from "@/lib/content/demo";
 
 // ---------------------------------------------------------------------------
@@ -130,18 +134,28 @@ function demoOverview(): ApplicantOverview {
   };
 }
 
+function emptyOverview(): ApplicantOverview {
+  return {
+    isDemo: false,
+    statusLabel: "",
+    school: "",
+    submittedOn: "",
+    steps: [],
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Loader
 // ---------------------------------------------------------------------------
 
 export async function getApplicantOverview(): Promise<ApplicantOverview> {
   const supabase = await createClient();
-  if (!supabase) return demoOverview();
+  if (!supabase || isDemoMode()) return demoOverview();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return demoOverview();
+  if (!user) return emptyOverview();
 
   const { data: appData } = await supabase
     .from("applications")
@@ -152,7 +166,7 @@ export async function getApplicantOverview(): Promise<ApplicantOverview> {
     .maybeSingle();
 
   const row = appData as ApplicationRow | null;
-  if (!row) return demoOverview();
+  if (!row) return emptyOverview();
 
   const status = row.status as ApplicationStatus;
 

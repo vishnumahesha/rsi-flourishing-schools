@@ -1,9 +1,14 @@
 /**
  * Data loaders for facilitator sub-pages (sessions, notes, schools).
- * Mirrors the pattern in queries.ts: query as the signed-in user via RLS,
- * fall back to demo data when Supabase is unconfigured, no user, or no rows.
+ *
+ * Queries as the signed-in user via RLS.
+ *
+ * Demo data is returned ONLY when Supabase is unconfigured (!supabase) or
+ * NEXT_PUBLIC_ENABLE_DEMO_FALLBACK=true. A real signed-in user with no rows
+ * receives real empty results, never fake data.
  */
 import { createClient } from "@/lib/supabase/server";
+import { isDemoMode } from "@/lib/demo";
 import {
   demoSessions,
   demoFacilitatorNotes,
@@ -43,14 +48,31 @@ type PdSessionRow = {
   status: string;
 };
 
+function demoSessionsResult(): FacilitatorSessionsResult {
+  const toSession = (s: (typeof demoSessions)[number]): Session => ({
+    id: s.title,
+    title: s.title,
+    dateLabel: s.date,
+  });
+  return {
+    isDemo: true,
+    upcoming: demoSessions.filter((s) => s.status === "Upcoming").map(toSession),
+    past: demoSessions.filter((s) => s.status !== "Upcoming").map(toSession),
+  };
+}
+
+function emptySessionsResult(): FacilitatorSessionsResult {
+  return { isDemo: false, upcoming: [], past: [] };
+}
+
 export async function getFacilitatorSessions(): Promise<FacilitatorSessionsResult> {
   const supabase = await createClient();
-  if (!supabase) return demoSessionsResult();
+  if (!supabase || isDemoMode()) return demoSessionsResult();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return demoSessionsResult();
+  if (!user) return emptySessionsResult();
 
   const { data } = await supabase
     .from("pd_sessions")
@@ -58,7 +80,6 @@ export async function getFacilitatorSessions(): Promise<FacilitatorSessionsResul
     .order("scheduled_for", { ascending: true });
 
   const rows = (data ?? []) as PdSessionRow[];
-  if (rows.length === 0) return demoSessionsResult();
 
   const toSession = (r: PdSessionRow): Session => ({
     id: r.id,
@@ -70,19 +91,6 @@ export async function getFacilitatorSessions(): Promise<FacilitatorSessionsResul
     isDemo: false,
     upcoming: rows.filter((r) => r.status === "scheduled").map(toSession),
     past: rows.filter((r) => r.status !== "scheduled").map(toSession),
-  };
-}
-
-function demoSessionsResult(): FacilitatorSessionsResult {
-  const toSession = (s: (typeof demoSessions)[number]): Session => ({
-    id: s.title,
-    title: s.title,
-    dateLabel: s.date,
-  });
-  return {
-    isDemo: true,
-    upcoming: demoSessions.filter((s) => s.status === "Upcoming").map(toSession),
-    past: demoSessions.filter((s) => s.status !== "Upcoming").map(toSession),
   };
 }
 
@@ -111,14 +119,30 @@ type FacilitatorNoteRow = {
 
 type OrgRow = { id: string; name: string };
 
+function demoNotesResult(): FacilitatorNotesResult {
+  return {
+    isDemo: true,
+    notes: demoFacilitatorNotes.map((n) => ({
+      id: n.id,
+      school: n.school,
+      date: n.date,
+      note: n.note,
+    })),
+  };
+}
+
+function emptyNotesResult(): FacilitatorNotesResult {
+  return { isDemo: false, notes: [] };
+}
+
 export async function getFacilitatorNotes(): Promise<FacilitatorNotesResult> {
   const supabase = await createClient();
-  if (!supabase) return demoNotesResult();
+  if (!supabase || isDemoMode()) return demoNotesResult();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return demoNotesResult();
+  if (!user) return emptyNotesResult();
 
   const [notesRes, orgsRes] = await Promise.all([
     supabase
@@ -129,7 +153,6 @@ export async function getFacilitatorNotes(): Promise<FacilitatorNotesResult> {
   ]);
 
   const rows = (notesRes.data ?? []) as FacilitatorNoteRow[];
-  if (rows.length === 0) return demoNotesResult();
 
   const orgMap = new Map<string, string>();
   for (const org of ((orgsRes.data ?? []) as OrgRow[])) {
@@ -143,18 +166,6 @@ export async function getFacilitatorNotes(): Promise<FacilitatorNotesResult> {
       school: r.organization_id ? (orgMap.get(r.organization_id) ?? "—") : "—",
       date: isoDate(r.created_at),
       note: r.body,
-    })),
-  };
-}
-
-function demoNotesResult(): FacilitatorNotesResult {
-  return {
-    isDemo: true,
-    notes: demoFacilitatorNotes.map((n) => ({
-      id: n.id,
-      school: n.school,
-      date: n.date,
-      note: n.note,
     })),
   };
 }
@@ -179,14 +190,33 @@ export type FacilitatorSchoolsResult = {
 type OrgDetailRow = { id: string; name: string; type: string | null; cohort: string | null };
 type GrowthAreaRow = { organization_id: string | null; title: string; progress: number };
 
+function demoSchoolsResult(): FacilitatorSchoolsResult {
+  return {
+    isDemo: true,
+    schools: demoCohort.map((c) => ({
+      id: c.name,
+      name: c.name,
+      descriptor: `${c.stage} · ${c.educators} educators`,
+      progress: c.progress,
+      growthAreaTitles: demoGrowthAreas
+        .slice(0, c.progress > 40 ? 3 : 1)
+        .map((g) => g.title),
+    })),
+  };
+}
+
+function emptySchoolsResult(): FacilitatorSchoolsResult {
+  return { isDemo: false, schools: [] };
+}
+
 export async function getFacilitatorSchools(): Promise<FacilitatorSchoolsResult> {
   const supabase = await createClient();
-  if (!supabase) return demoSchoolsResult();
+  if (!supabase || isDemoMode()) return demoSchoolsResult();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return demoSchoolsResult();
+  if (!user) return emptySchoolsResult();
 
   const [orgsRes, growthRes] = await Promise.all([
     supabase
@@ -197,7 +227,6 @@ export async function getFacilitatorSchools(): Promise<FacilitatorSchoolsResult>
   ]);
 
   const orgs = (orgsRes.data ?? []) as OrgDetailRow[];
-  if (orgs.length === 0) return demoSchoolsResult();
 
   const progressByOrg = new Map<string, number[]>();
   const titlesByOrg = new Map<string, string[]>();
@@ -231,20 +260,5 @@ export async function getFacilitatorSchools(): Promise<FacilitatorSchoolsResult>
         growthAreaTitles: (titlesByOrg.get(org.id) ?? []).slice(0, 3),
       };
     }),
-  };
-}
-
-function demoSchoolsResult(): FacilitatorSchoolsResult {
-  return {
-    isDemo: true,
-    schools: demoCohort.map((c) => ({
-      id: c.name,
-      name: c.name,
-      descriptor: `${c.stage} · ${c.educators} educators`,
-      progress: c.progress,
-      growthAreaTitles: demoGrowthAreas
-        .slice(0, c.progress > 40 ? 3 : 1)
-        .map((g) => g.title),
-    })),
   };
 }

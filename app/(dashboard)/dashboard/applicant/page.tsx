@@ -1,11 +1,30 @@
 import Link from "next/link";
-import { PageHeading, DashCard, StatCard, DemoNotice } from "@/components/dashboard/primitives";
+import { PageHeading, DashCard, StatCard, DemoNotice, EmptyState } from "@/components/dashboard/primitives";
 import { Badge } from "@/components/ui/badge";
 import { getApplicantOverview } from "@/lib/dashboard/applicant";
 import { CheckCircle2, Circle, Clock, FileText, ArrowRight } from "lucide-react";
 
 export default async function ApplicantOverview() {
   const data = await getApplicantOverview();
+  const hasApplication = data.steps.length > 0 || data.statusLabel !== "";
+
+  if (!data.isDemo && !hasApplication) {
+    return (
+      <>
+        <PageHeading
+          title="Your application"
+          description="Track where your school stands in the program application process."
+        />
+        <EmptyState
+          icon={FileText}
+          title="No application yet"
+          description="Start your school's application to the Flourishing Schools professional development program. You can save your progress and return any time."
+          cta={{ label: "Start an application", href: "/apply" }}
+        />
+      </>
+    );
+  }
+
   return (
     <>
       <PageHeading

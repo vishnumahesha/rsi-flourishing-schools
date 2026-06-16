@@ -13,6 +13,7 @@ import {
   evidenceLabels,
   difficultyLabels,
 } from "@/lib/content/resources";
+import { isPlaceholderCitation } from "@/components/marketing/cards";
 import { FLOURISHING_DOMAINS } from "@/types";
 
 export function generateStaticParams() {
@@ -60,7 +61,11 @@ export default async function ResourceDetailPage({
             Back to library
           </Link>
           <div className="mt-6 flex flex-wrap items-center gap-2">
-            <Badge variant="gold">{evidenceLabels[resource.evidenceStrength]}</Badge>
+            {isPlaceholderCitation(resource.sourceCitation) ? (
+              <Badge variant="outline">Draft · citation pending</Badge>
+            ) : (
+              <Badge variant="gold">{evidenceLabels[resource.evidenceStrength]}</Badge>
+            )}
             <Badge variant="muted">{difficultyLabels[resource.implementationDifficulty]}</Badge>
             <Badge variant="sage">{resource.interventionType}</Badge>
           </div>
@@ -89,9 +94,14 @@ export default async function ResourceDetailPage({
 
               <h2>Related research</h2>
               <p>{resource.relatedResearch}</p>
-              <p className="text-sm text-muted">
-                Source: {resource.sourceCitation}. Replace with a verified citation before production.
-              </p>
+              {isPlaceholderCitation(resource.sourceCitation) ? (
+                <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                  Citation pending — this resource is in draft and will show its peer-reviewed
+                  source before pilot.
+                </p>
+              ) : (
+                <p className="text-sm text-muted">Source: {resource.sourceCitation}</p>
+              )}
             </div>
 
             <aside className="space-y-5">

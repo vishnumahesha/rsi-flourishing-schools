@@ -7,6 +7,12 @@ import { cn } from "@/lib/utils";
 import type { ResourceItem } from "@/types";
 import { evidenceLabels, difficultyLabels } from "@/lib/content/resources";
 
+/** True when a citation string is absent or is a known placeholder. */
+export function isPlaceholderCitation(c: string | undefined | null): boolean {
+  if (!c || c.trim() === "") return true;
+  return c.toLowerCase().includes("placeholder");
+}
+
 export function FeatureCard({
   icon: Icon,
   title,
@@ -165,7 +171,11 @@ export function ResourceCard({ resource }: { resource: ResourceItem }) {
         )}
         <div className="flex flex-1 flex-col p-6">
         <div className="mb-3 flex flex-wrap items-center gap-1.5">
-          <Badge variant="gold">{evidenceLabels[resource.evidenceStrength]}</Badge>
+          {isPlaceholderCitation(resource.sourceCitation) ? (
+            <Badge variant="outline">Draft · citation pending</Badge>
+          ) : (
+            <Badge variant="gold">{evidenceLabels[resource.evidenceStrength]}</Badge>
+          )}
           <Badge variant="muted">{difficultyLabels[resource.implementationDifficulty]}</Badge>
         </div>
         <h3 className="font-display text-lg leading-snug text-navy group-hover:text-crimson">

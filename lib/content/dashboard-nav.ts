@@ -11,6 +11,8 @@ import {
   CalendarDays,
   School,
   StickyNote,
+  UserCircle,
+  Settings,
   type LucideIcon,
 } from "lucide-react";
 
@@ -25,6 +27,14 @@ export interface DashNavSection {
   items: DashNavItem[];
 }
 
+const ACCOUNT_SECTION: DashNavSection = {
+  heading: "Account",
+  items: [
+    { label: "Profile", href: "/dashboard/profile", icon: UserCircle },
+    { label: "Settings", href: "/dashboard/settings", icon: Settings },
+  ],
+};
+
 const NAV: Record<string, DashNavSection[]> = {
   applicant: [
     {
@@ -33,6 +43,7 @@ const NAV: Record<string, DashNavSection[]> = {
         { label: "Overview", href: "/dashboard/applicant", icon: LayoutDashboard },
       ],
     },
+    ACCOUNT_SECTION,
   ],
   school_admin: [
     {
@@ -51,6 +62,7 @@ const NAV: Record<string, DashNavSection[]> = {
         { label: "Documents", href: "/dashboard/admin/documents", icon: FileText },
       ],
     },
+    ACCOUNT_SECTION,
   ],
   teacher: [
     {
@@ -62,6 +74,7 @@ const NAV: Record<string, DashNavSection[]> = {
         { label: "AI Coach", href: "/dashboard/teacher/coach", icon: MessageSquare },
       ],
     },
+    ACCOUNT_SECTION,
   ],
   school_team_member: [
     {
@@ -71,6 +84,7 @@ const NAV: Record<string, DashNavSection[]> = {
         { label: "Discussion", href: "/dashboard/team/forum", icon: MessageSquare },
       ],
     },
+    ACCOUNT_SECTION,
   ],
   rsi_facilitator: [
     {
@@ -82,6 +96,7 @@ const NAV: Record<string, DashNavSection[]> = {
         { label: "Notes", href: "/dashboard/facilitator/notes", icon: StickyNote },
       ],
     },
+    ACCOUNT_SECTION,
   ],
 };
 NAV.platform_admin = NAV.rsi_facilitator;

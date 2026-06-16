@@ -1,32 +1,15 @@
 /**
  * Data loaders for admin sub-pages (plan, team, documents).
- * Queries as the signed-in user (anon key + RLS). Falls back to demo data
- * when Supabase is unconfigured, the user has no session, or no rows exist.
+ *
+ * Queries as the signed-in user (anon key + RLS).
+ *
+ * Demo data is returned ONLY when Supabase is unconfigured (!supabase) or
+ * NEXT_PUBLIC_ENABLE_DEMO_FALLBACK=true. A real signed-in user with an empty
+ * org receives real empty results, never fake data.
  */
 import { createClient } from "@/lib/supabase/server";
+import { isDemoMode } from "@/lib/demo";
 import { demoGrowthAreas, demoTeam, demoDocuments } from "@/lib/content/demo";
-
-// ---------------------------------------------------------------------------
-// Shared org resolver
-// ---------------------------------------------------------------------------
-
-async function resolveOrgId(): Promise<string | null> {
-  const supabase = await createClient();
-  if (!supabase) return null;
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("organization_id")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  return (profile as { organization_id: string | null } | null)?.organization_id ?? null;
-}
 
 // ---------------------------------------------------------------------------
 // Growth status helpers
@@ -65,37 +48,41 @@ type GrowthRow = {
   status: string;
 };
 
+function demoPlan(): AdminPlan {
+  return {
+    isDemo: true,
+    growthAreas: demoGrowthAreas.map((g) => ({
+      id: g.title,
+      domain: g.domain,
+      title: g.title,
+      progress: g.progress,
+      statusLabel: g.status,
+      planning: g.status === "Planning",
+    })),
+  };
+}
+
+function emptyPlan(): AdminPlan {
+  return { isDemo: false, growthAreas: [] };
+}
+
 export async function getAdminPlan(): Promise<AdminPlan> {
-  const orgId = await resolveOrgId();
-
-  if (!orgId) {
-    return {
-      isDemo: true,
-      growthAreas: demoGrowthAreas.map((g) => ({
-        id: g.title,
-        domain: g.domain,
-        title: g.title,
-        progress: g.progress,
-        statusLabel: g.status,
-        planning: g.status === "Planning",
-      })),
-    };
-  }
-
   const supabase = await createClient();
-  if (!supabase) {
-    return {
-      isDemo: true,
-      growthAreas: demoGrowthAreas.map((g) => ({
-        id: g.title,
-        domain: g.domain,
-        title: g.title,
-        progress: g.progress,
-        statusLabel: g.status,
-        planning: g.status === "Planning",
-      })),
-    };
-  }
+  if (!supabase || isDemoMode()) return demoPlan();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return emptyPlan();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("organization_id")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const orgId = (profile as { organization_id: string | null } | null)?.organization_id;
+  if (!orgId) return emptyPlan();
 
   const { data } = await supabase
     .from("growth_areas")
@@ -104,20 +91,6 @@ export async function getAdminPlan(): Promise<AdminPlan> {
     .order("created_at", { ascending: true });
 
   const rows = (data ?? []) as GrowthRow[];
-
-  if (rows.length === 0) {
-    return {
-      isDemo: true,
-      growthAreas: demoGrowthAreas.map((g) => ({
-        id: g.title,
-        domain: g.domain,
-        title: g.title,
-        progress: g.progress,
-        statusLabel: g.status,
-        planning: g.status === "Planning",
-      })),
-    };
-  }
 
   return {
     isDemo: false,
@@ -163,10 +136,8 @@ function deriveInitials(fullName: string | null): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-export async function getAdminTeam(): Promise<AdminTeam> {
-  const orgId = await resolveOrgId();
-
-  const demoFallback: AdminTeam = {
+function demoAdminTeam(): AdminTeam {
+  return {
     isDemo: true,
     members: demoTeam.map((m) => ({
       id: m.name,
@@ -176,11 +147,29 @@ export async function getAdminTeam(): Promise<AdminTeam> {
       initials: m.initials,
     })),
   };
+}
 
-  if (!orgId) return demoFallback;
+function emptyAdminTeam(): AdminTeam {
+  return { isDemo: false, members: [] };
+}
 
+export async function getAdminTeam(): Promise<AdminTeam> {
   const supabase = await createClient();
-  if (!supabase) return demoFallback;
+  if (!supabase || isDemoMode()) return demoAdminTeam();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return emptyAdminTeam();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("organization_id")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const orgId = (profile as { organization_id: string | null } | null)?.organization_id;
+  if (!orgId) return emptyAdminTeam();
 
   const { data } = await supabase
     .from("profiles")
@@ -188,7 +177,6 @@ export async function getAdminTeam(): Promise<AdminTeam> {
     .eq("organization_id", orgId);
 
   const rows = (data ?? []) as ProfileRow[];
-  if (rows.length === 0) return demoFallback;
 
   return {
     isDemo: false,
@@ -237,10 +225,8 @@ function formatSize(bytes: number | null): string {
   return `${Math.round(bytes / 1024)} KB`;
 }
 
-export async function getAdminDocuments(): Promise<AdminDocuments> {
-  const orgId = await resolveOrgId();
-
-  const demoFallback: AdminDocuments = {
+function demoAdminDocuments(): AdminDocuments {
+  return {
     isDemo: true,
     documents: demoDocuments.map((d) => ({
       id: d.name,
@@ -250,11 +236,29 @@ export async function getAdminDocuments(): Promise<AdminDocuments> {
       size: d.size,
     })),
   };
+}
 
-  if (!orgId) return demoFallback;
+function emptyAdminDocuments(): AdminDocuments {
+  return { isDemo: false, documents: [] };
+}
 
+export async function getAdminDocuments(): Promise<AdminDocuments> {
   const supabase = await createClient();
-  if (!supabase) return demoFallback;
+  if (!supabase || isDemoMode()) return demoAdminDocuments();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return emptyAdminDocuments();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("organization_id")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const orgId = (profile as { organization_id: string | null } | null)?.organization_id;
+  if (!orgId) return emptyAdminDocuments();
 
   const { data } = await supabase
     .from("documents")
@@ -263,7 +267,6 @@ export async function getAdminDocuments(): Promise<AdminDocuments> {
     .order("created_at", { ascending: false });
 
   const rows = (data ?? []) as DocumentRow[];
-  if (rows.length === 0) return demoFallback;
 
   return {
     isDemo: false,

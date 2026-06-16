@@ -2,15 +2,18 @@
  * Live dashboard data loaders.
  *
  * These query Supabase AS THE SIGNED-IN USER (anon key + session cookies),
- * so Row Level Security decides what each role can see. When the backend is
- * not configured, there is no session, or the queries return nothing, each
- * loader falls back to the demonstration data so a page never breaks.
+ * so Row Level Security decides what each role can see.
+ *
+ * Demo data is returned ONLY when Supabase is unconfigured (!supabase) or
+ * NEXT_PUBLIC_ENABLE_DEMO_FALLBACK=true. A real signed-in user with an empty
+ * org receives real empty results, never fake "Riverbend" data.
  *
  * Nothing here fabricates records: fields with no column in the schema
  * (e.g. enrollment, a per-school program "stage") are shown as "—" or derived
  * transparently from real values, never invented.
  */
 import { createClient } from "@/lib/supabase/server";
+import { isDemoMode } from "@/lib/demo";
 import {
   demoSchool,
   demoGrowthAreas,
@@ -90,14 +93,26 @@ function demoAdminOverview(): AdminOverview {
   };
 }
 
+function emptyAdminOverview(): AdminOverview {
+  return {
+    isDemo: false,
+    schoolName: "",
+    subtitle: "",
+    educators: 0,
+    enrollment: "—",
+    growthAreas: [],
+    sessions: [],
+  };
+}
+
 export async function getAdminOverview(): Promise<AdminOverview> {
   const supabase = await createClient();
-  if (!supabase) return demoAdminOverview();
+  if (!supabase || isDemoMode()) return demoAdminOverview();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return demoAdminOverview();
+  if (!user) return emptyAdminOverview();
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -106,7 +121,7 @@ export async function getAdminOverview(): Promise<AdminOverview> {
     .maybeSingle();
 
   const organizationId = (profile as { organization_id: string | null } | null)?.organization_id;
-  if (!organizationId) return demoAdminOverview();
+  if (!organizationId) return emptyAdminOverview();
 
   const { data: orgData } = await supabase
     .from("organizations")
@@ -115,7 +130,7 @@ export async function getAdminOverview(): Promise<AdminOverview> {
     .maybeSingle();
 
   const org = orgData as OrgRow | null;
-  if (!org) return demoAdminOverview();
+  if (!org) return emptyAdminOverview();
 
   const [growthRes, sessionRes, educatorRes] = await Promise.all([
     supabase
@@ -214,9 +229,18 @@ function demoFacilitatorOverview(): FacilitatorOverview {
     isDemo: true,
     schools,
     totalEducators: schools.reduce((s, c) => s + c.educators, 0),
-    avgProgress: Math.round(
-      schools.reduce((s, c) => s + c.progress, 0) / schools.length,
-    ),
+    avgProgress: schools.length
+      ? Math.round(schools.reduce((s, c) => s + c.progress, 0) / schools.length)
+      : 0,
+  };
+}
+
+function emptyFacilitatorOverview(): FacilitatorOverview {
+  return {
+    isDemo: false,
+    schools: [],
+    totalEducators: 0,
+    avgProgress: 0,
   };
 }
 
@@ -225,12 +249,12 @@ type FacilitatorGrowthRow = { organization_id: string | null; progress: number }
 
 export async function getFacilitatorOverview(): Promise<FacilitatorOverview> {
   const supabase = await createClient();
-  if (!supabase) return demoFacilitatorOverview();
+  if (!supabase || isDemoMode()) return demoFacilitatorOverview();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return demoFacilitatorOverview();
+  if (!user) return emptyFacilitatorOverview();
 
   // RLS lets a facilitator read every organization; a non-facilitator only
   // sees their own. Either way we render whatever the session is allowed.
@@ -240,7 +264,6 @@ export async function getFacilitatorOverview(): Promise<FacilitatorOverview> {
     .order("name", { ascending: true });
 
   const orgs = (orgData ?? []) as OrgRow[];
-  if (orgs.length === 0) return demoFacilitatorOverview();
 
   const [growthRes, profileRes] = await Promise.all([
     supabase.from("growth_areas").select("organization_id, progress"),

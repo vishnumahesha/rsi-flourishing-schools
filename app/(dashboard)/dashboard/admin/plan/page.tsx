@@ -2,7 +2,7 @@ import { PageHeading, DashCard, DemoNotice } from "@/components/dashboard/primit
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { getResource } from "@/lib/content/resources";
-import { demoGrowthAreas } from "@/lib/content/demo";
+import { getAdminPlan } from "@/lib/dashboard/admin-sub";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
@@ -12,19 +12,20 @@ const linkedResources: Record<string, string[]> = {
   student_wellbeing: ["gratitude-journaling-practice"],
 };
 
-export default function GrowthPlan() {
+export default async function GrowthPlan() {
+  const data = await getAdminPlan();
   return (
     <>
       <PageHeading
         title="Growth plan"
         description="Each focus area pairs a measurable goal with low-lift practices from the resource library."
       />
-      <DemoNotice />
+      {data.isDemo && <DemoNotice />}
       <div className="space-y-5">
-        {demoGrowthAreas.map((g) => {
+        {data.growthAreas.map((g) => {
           const slugs = linkedResources[g.domain] ?? [];
           return (
-            <DashCard key={g.title} title={g.title} action={<Badge variant={g.status === "Planning" ? "muted" : "gold"}>{g.status}</Badge>}>
+            <DashCard key={g.id} title={g.title} action={<Badge variant={g.planning ? "muted" : "gold"}>{g.statusLabel}</Badge>}>
               <div className="mb-4 max-w-md">
                 <div className="mb-1 flex justify-between text-xs text-slate">
                   <span>Progress</span>

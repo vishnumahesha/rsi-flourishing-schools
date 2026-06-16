@@ -1,32 +1,34 @@
 import Link from "next/link";
 import { PageHeading, DashCard, StatCard, DemoNotice } from "@/components/dashboard/primitives";
 import { Badge } from "@/components/ui/badge";
-import { demoApplication } from "@/lib/content/demo";
+import { getApplicantOverview } from "@/lib/dashboard/applicant";
 import { CheckCircle2, Circle, Clock, FileText, ArrowRight } from "lucide-react";
 
-export default function ApplicantOverview() {
-  const app = demoApplication;
+export default async function ApplicantOverview() {
+  const data = await getApplicantOverview();
   return (
     <>
       <PageHeading
         title="Your application"
         description="Track where your school stands in the program application process."
       />
-      <DemoNotice>
-        This shows an <strong>example application</strong>. Your real status will
-        appear here once you submit and the backend is connected.
-      </DemoNotice>
+      {data.isDemo && (
+        <DemoNotice>
+          This shows an <strong>example application</strong>. Your real status will
+          appear here once you submit and the backend is connected.
+        </DemoNotice>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Status" value="Under review" icon={Clock} />
-        <StatCard label="School" value={app.school} hint="Submitted application" />
-        <StatCard label="Submitted" value={app.submittedOn} />
+        <StatCard label="Status" value={data.statusLabel} icon={Clock} />
+        <StatCard label="School" value={data.school} hint="Submitted application" />
+        <StatCard label="Submitted" value={data.submittedOn} />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <DashCard title="Progress" className="lg:col-span-2">
           <ol className="space-y-4">
-            {app.steps.map((step) => (
+            {data.steps.map((step) => (
               <li key={step.label} className="flex items-start gap-3">
                 {step.done ? (
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-sage" />

@@ -2,21 +2,23 @@
 
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import {
-  demoTasks,
-  taskColumns,
-  type TaskStatus,
-} from "@/lib/content/demo";
+import { taskColumns, type TaskStatus } from "@/lib/content/demo";
+import type { TeamTask } from "@/lib/dashboard/team";
 import { FLOURISHING_DOMAINS } from "@/types";
 import { GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+interface ActionBoardProps {
+  initialTasks: TeamTask[];
+  isDemo: boolean;
+}
 
 function domainLabel(value: string) {
   return FLOURISHING_DOMAINS.find((d) => d.value === value)?.label ?? value;
 }
 
-export function ActionBoard() {
-  const [tasks, setTasks] = useState(demoTasks);
+export function ActionBoard({ initialTasks }: ActionBoardProps) {
+  const [tasks, setTasks] = useState(initialTasks);
   const [dragId, setDragId] = useState<string | null>(null);
   const [overCol, setOverCol] = useState<TaskStatus | null>(null);
 
@@ -72,9 +74,11 @@ export function ActionBoard() {
                         <Badge variant="outline" className="text-[0.65rem]">
                           {domainLabel(t.domain)}
                         </Badge>
-                        <span className="grid h-6 w-6 place-items-center rounded-full bg-navy text-[0.6rem] font-bold text-ivory">
-                          {t.owner}
-                        </span>
+                        {t.owner && (
+                          <span className="grid h-6 w-6 place-items-center rounded-full bg-navy text-[0.6rem] font-bold text-ivory">
+                            {t.owner}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>

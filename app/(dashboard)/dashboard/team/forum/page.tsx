@@ -1,9 +1,10 @@
 import { PageHeading, DashCard, DemoNotice } from "@/components/dashboard/primitives";
 import { Button } from "@/components/ui/button";
-import { demoThreads } from "@/lib/content/demo";
+import { getTeamForum } from "@/lib/dashboard/team";
 import { MessageSquare, Plus } from "lucide-react";
 
-export default function ForumPage() {
+export default async function ForumPage() {
+  const { isDemo, threads } = await getTeamForum();
   return (
     <>
       <PageHeading
@@ -11,9 +12,9 @@ export default function ForumPage() {
         description="Share what's working, ask questions, and learn alongside your team."
         action={<Button size="sm"><Plus className="mr-2 h-4 w-4" /> New thread</Button>}
       />
-      <DemoNotice />
+      {isDemo && <DemoNotice />}
       <div className="space-y-3">
-        {demoThreads.map((t) => (
+        {threads.map((t) => (
           <DashCard key={t.id} className="transition-shadow hover:shadow-card">
             <div className="flex items-start gap-3">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-crimson-soft">

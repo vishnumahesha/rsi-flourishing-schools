@@ -1,9 +1,10 @@
 import { PageHeading, DashCard, DemoNotice } from "@/components/dashboard/primitives";
 import { Button } from "@/components/ui/button";
-import { demoFacilitatorNotes } from "@/lib/content/demo";
+import { getFacilitatorNotes } from "@/lib/dashboard/facilitator-sub";
 import { StickyNote, Plus, Lock } from "lucide-react";
 
-export default function FacilitatorNotes() {
+export default async function FacilitatorNotes() {
+  const data = await getFacilitatorNotes();
   return (
     <>
       <PageHeading
@@ -11,13 +12,13 @@ export default function FacilitatorNotes() {
         description="Private observations to guide your support for each school."
         action={<Button size="sm"><Plus className="mr-2 h-4 w-4" /> Add note</Button>}
       />
-      <DemoNotice />
+      {data.isDemo && <DemoNotice />}
       <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-line bg-paper px-4 py-3 text-sm text-slate">
         <Lock className="mt-0.5 h-4 w-4 shrink-0 text-navy" />
         <p>Notes are visible only to RSI facilitators and platform admins — never to school participants.</p>
       </div>
       <div className="space-y-3">
-        {demoFacilitatorNotes.map((n) => (
+        {data.notes.map((n) => (
           <DashCard key={n.id}>
             <div className="flex items-start gap-3">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-gold-soft"><StickyNote className="h-5 w-5 text-gold" /></span>

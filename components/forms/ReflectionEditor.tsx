@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { demoReflections } from "@/lib/content/demo";
 import { NotebookPen, Plus, Check } from "lucide-react";
 
 const PROMPTS = [
@@ -20,8 +19,13 @@ interface Entry {
   body: string;
 }
 
-export function ReflectionEditor() {
-  const [entries, setEntries] = useState<Entry[]>(demoReflections);
+interface Props {
+  initialEntries: Entry[];
+  isDemo: boolean;
+}
+
+export function ReflectionEditor({ initialEntries, isDemo }: Props) {
+  const [entries, setEntries] = useState<Entry[]>(initialEntries);
   const [prompt, setPrompt] = useState(PROMPTS[0]);
   const [body, setBody] = useState("");
   const [justSaved, setJustSaved] = useState(false);
@@ -69,7 +73,9 @@ export function ReflectionEditor() {
             {justSaved ? "Saved (this session)" : "Save reflection"}
           </Button>
           <p className="mt-2 text-center text-xs text-slate">
-            Demo only — entries are kept in this browser session.
+            {isDemo
+              ? "Demo only — entries are kept in this browser session."
+              : "New entries are kept in this browser session for now."}
           </p>
         </div>
       </div>

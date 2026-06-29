@@ -6,7 +6,9 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|brand/|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
-  ],
+  // Only run on auth-gated routes. Public pages (/, all (public) routes) are
+  // deliberately excluded so a slow or paused Supabase backend can never take
+  // the public site down with a middleware timeout. This does not change which
+  // routes are reachable — public pages were never auth-gated.
+  matcher: ["/dashboard/:path*"],
 };

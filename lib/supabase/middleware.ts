@@ -26,9 +26,21 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getUser() makes a network round-trip to Supabase on every invocation.
+  // If that backend is slow or paused, never let it hang the middleware
+  // (which would 504 the route). Race it against a short timeout and degrade
+  // to "no user" — we always return a response, never throw or hang.
+  const AUTH_TIMEOUT_MS = 2000;
+  const timeout = new Promise<null>((resolve) =>
+    setTimeout(() => resolve(null), AUTH_TIMEOUT_MS),
+  );
+  const user = await Promise.race([
+    supabase.auth
+      .getUser()
+      .then(({ data }) => data.user)
+      .catch(() => null),
+    timeout,
+  ]);
 
   const path = request.nextUrl.pathname;
   if (path.startsWith("/dashboard") && !user) {
